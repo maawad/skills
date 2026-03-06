@@ -15,8 +15,9 @@ set -e
 INSTALL_SCRIPT_URL="https://raw.githubusercontent.com/maawad/skills/main/install/skills/install.sh"
 # Env default (--base-url overrides); use args when piping to bash so overrides apply
 BASE_URL="${SKILLS_RAW_URL:-https://raw.githubusercontent.com/maawad/skills/main}"
-# List of skills in this repo (top-level dirs containing SKILL.md)
-TOOLS=(pre-push-hygiene gh-pr-review read-the-damn-code)
+
+# List of skills in this repo (top-level dirs containing SKILL.md).
+TOOLS=(pre-push-hygiene gh-pr-review gh-workspace-dashboard gh-copilot-minion read-the-damn-code)
 DRY_RUN=false
 GLOBAL=false
 TARGET="cursor"
