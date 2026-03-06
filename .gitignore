@@ -1,0 +1,6 @@
+### Ignore top-level scratch / verification dirs
+_*/
+
+### macOS cruft
+.DS_Store
+
