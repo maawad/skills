@@ -48,6 +48,8 @@ If failures are real and look fixable by Copilot, continue.
 
 ### 2. Delegate the fix to Copilot via comment
 
+When addressing the Copilot SWE agent on a PR you **must use @copilot** (not @app/copilot-swe-agent) at the start of the comment so it gets notified and acts on the request.
+
 On the main PR, post a comment asking Copilot to use `gh` and fix failures, for example:
 
 ```bash

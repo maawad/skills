@@ -1,6 +1,6 @@
 ---
 name: gh-pr-review
-description: Use GitHub CLI (gh) for pull request workflows: inspect PR status and checks, list and resolve review threads (GraphQL), re-request reviewers, view runs. Use when the user asks to address PR comments, resolve review threads, re-request Copilot or other review, or check CI/PR state.
+description: Use GitHub CLI (gh) for pull request workflows: inspect PR status and checks, list and resolve review threads (GraphQL), re-request reviewers, view runs, approve workflow runs for bot/fork PRs. Use when the user asks to address PR comments, resolve review threads, re-request Copilot or other review, check CI/PR state, or approve CI for bot PRs.
 ---
 
 # GitHub CLI – PR and review workflows
@@ -55,6 +55,25 @@ gh pr edit <number> --add-reviewer <login>
 ```
 
 Example: `gh pr edit 70 --add-reviewer copilot-pull-request-reviewer`
+
+## Approving CI for bot / fork PRs
+
+When a PR is from a **bot** (e.g. `app/copilot-swe-agent`) or a **first-time contributor**, workflow runs may be **pending approval** before CI runs.
+
+- **PR from a fork:** Use the API to approve (requires repo write):
+  ```bash
+  gh api -X POST "repos/OWNER/REPO/actions/runs/RUN_ID/approve"
+  ```
+  Get run IDs from `gh run list -R OWNER/REPO --branch BRANCH -L 20 --json databaseId,conclusion,name` (runs with `conclusion: action_required`).
+
+- **PR from same repo** (e.g. Copilot branch in org repo): The approve API does **not** work — it returns `This run is not from a fork pull request`. Do one of:
+  1. **UI:** On the PR Conversation tab, click **"Approve workflows to run"** in the yellow banner.
+  2. **Rerun:** Trigger new runs as the approver so they may run without the gate:
+     ```bash
+     gh run list -R OWNER/REPO --branch BRANCH -L 20 --json databaseId,conclusion,name
+     # For each run with conclusion "action_required":
+     gh run rerun <run_id> -R OWNER/REPO
+     ```
 
 ## Repo identity
 For GraphQL, get owner/name: `gh repo view --json nameWithOwner`.
