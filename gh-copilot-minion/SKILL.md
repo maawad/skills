@@ -117,6 +117,54 @@ Confirm that:
 - Lint/format jobs now pass.
 - The main PR is no longer blocked on the issues Copilot fixed.
 
+### 6. View Copilot session logs
+
+You can inspect what Copilot is doing (or did) in real time using the `gh agent-task` CLI or the Copilot sessions API.
+
+**List recent sessions:**
+
+```bash
+gh agent-task list -L 10
+```
+
+**View a session (interactive only — requires session ID):**
+
+```bash
+gh agent-task view <session-id> --log
+```
+
+**Get session IDs and logs via the API (works non-interactively):**
+
+The `gh agent-task` CLI hits `https://api.githubcopilot.com/agents/sessions` under the hood. Use `curl` to access it directly:
+
+```bash
+TOKEN=$(gh auth token)
+
+# List sessions (most recent first)
+curl -s -H “Authorization: Bearer $TOKEN” -H “Accept: application/json” \
+  “https://api.githubcopilot.com/agents/sessions?page_number=1&page_size=5&sort=last_updated_at,desc”
+```
+
+Each session object includes: `id`, `name`, `state` (`in_progress`/`completed`/`failed`), `resource_number` (PR number), `repo_id`, `model`, `workflow_run_id`, `created_at`, `completed_at`.
+
+**Stream live session logs:**
+
+```bash
+# Get the session ID from the list above, then fetch logs:
+curl -s -H “Authorization: Bearer $TOKEN” -H “Accept: application/json” \
+  “https://api.githubcopilot.com/agents/sessions/<session-id>/logs”
+```
+
+The logs endpoint returns Server-Sent Events (SSE) with the agent's reasoning, tool calls, and command outputs. Extract readable content with:
+
+```bash
+curl -s -H “Authorization: Bearer $TOKEN” -H “Accept: application/json” \
+  “https://api.githubcopilot.com/agents/sessions/<session-id>/logs” \
+  | grep -o '”content”:”[^”]*”' | sed 's/”content”:”//;s/”$//' | grep -v “^null$”
+```
+
+> **Note:** The Copilot agent runs on self-hosted runners (same as CI). It has access to GPUs and can execute commands directly — it does not need a CI workflow to run benchmarks or tests.
+
 ## Summary
 
 1. Use `gh pr checks` on the main PR to confirm it is blocked on fixable CI/lint issues.
@@ -124,6 +172,7 @@ Confirm that:
 3. When Copilot opens a sub-PR, review its diff and CI.
 4. Undraft (if needed) and merge the sub-PR with a normal merge.
 5. Re-check CI on the main PR and rerun failed jobs if necessary.
+6. Use `gh agent-task list` or the `api.githubcopilot.com` sessions API to monitor Copilot's progress and inspect its reasoning logs.
 
 Use this pattern whenever you want Copilot to act as a “minion” that cleans up CI/lint and small fixes on your branches, while you stay in control of review and merge.
 
