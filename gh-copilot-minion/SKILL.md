@@ -48,7 +48,12 @@ If failures are real and look fixable by Copilot, continue.
 
 ### 2. Delegate the fix to Copilot via comment
 
-When addressing the Copilot SWE agent on a PR you **must use @copilot** (not @app/copilot-swe-agent) at the start of the comment so it gets notified and acts on the request.
+When addressing the Copilot SWE agent on a PR or issue you **must use @copilot** (not @app/copilot-swe-agent) at the start of the comment so it gets notified and acts on the request.
+
+> **Assigning Copilot:** To assign Copilot to an issue, use the username `copilot-swe-agent` (no `[bot]` suffix). Variants like `Copilot`, `copilot`, or `copilot-swe-agent[bot]` will **not** work with `gh issue edit --add-assignee`. Example:
+> ```bash
+> gh issue edit <issue-num> -R <owner>/<name> --add-assignee "copilot-swe-agent"
+> ```
 
 On the main PR, post a comment asking Copilot to use `gh` and fix failures, for example:
 
