@@ -165,6 +165,19 @@ curl -s -H “Authorization: Bearer $TOKEN” -H “Accept: application/json” 
 
 > **Note:** The Copilot agent runs on self-hosted runners (same as CI). It has access to GPUs and can execute commands directly — it does not need a CI workflow to run benchmarks or tests.
 
+**Cancel a running session:**
+
+If Copilot is stuck (e.g. a hung command that will never return), cancel the session via `PUT`:
+
+```bash
+TOKEN=$(gh auth token)
+curl -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"state":"cancelled"}' \
+  "https://api.githubcopilot.com/agents/sessions/<session-id>"
+```
+
+> **Interacting with a running session:** There is no API to send messages into a live session. You can only **cancel** it (via `PUT` above) and then **post a new PR comment** mentioning `@copilot` to start a fresh session with updated instructions. The `gh agent-task` CLI also has no "message" or "reply" subcommand — only `list`, `view`, and `create`.
+
 ## Summary
 
 1. Use `gh pr checks` on the main PR to confirm it is blocked on fixable CI/lint issues.
